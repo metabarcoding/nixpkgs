@@ -16965,6 +16965,8 @@ with pkgs;
 
   ecopcr = callPackage ../applications/science/biology/ecopcr { };
 
+  diamond = callPackage ../applications/science/biology/diamond { };
+
   emboss = callPackage ../applications/science/biology/emboss { };
 
   htslib = callPackage ../development/libraries/science/biology/htslib { };
