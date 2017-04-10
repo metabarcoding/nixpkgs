@@ -9,8 +9,8 @@ stdenv.mkDerivation rec {
 	    };
 	
 	  patches = [
-	              ./diamond-0.8.36-no-warning.patch
-                ];
+	  		      ./diamond-0.8.36-no-warning.patch
+	  	   	    ];
 	  		
 	  nativeBuildInputs = [ cmake ];
 	  buildInputs = [ zlib ];
