@@ -1,0 +1,293 @@
+diff -u -r RepSeek/KMRK.c RepSeek-patched/KMRK.c
+--- RepSeek/KMRK.c	2014-09-09 12:34:39.000000000 +0200
++++ RepSeek-patched/KMRK.c	2017-02-23 18:47:57.000000000 +0100
+@@ -298,18 +298,16 @@
+ 
+ static void unroll2(vn_type* x)
+ {
+-  int32_t *v;
+   int32_t *n;
+   int32_t size;
+   int32_t i;
+   int32_t second;
+   int32_t last;
+ 
+-  v    = GETVECTOR(x,v);
+   n    = GETVECTOR(x,n);
+   size = x->size;
+ 
+-  for(i = 1; i <= size; i++)
++  for(i = 1; i <= size; i++) {
+     if (IS_MARKED(n,i))
+       {
+ 	last   = GET(n,i);
+@@ -317,6 +315,7 @@
+ 	SET(n,last,last);
+ 	SETMARKED(n,i,second);
+       }
++    }
+ }
+ 
+ 
+@@ -576,12 +575,10 @@
+ 			KMRK_QUORUM_FUNC_PTR(quorum))
+ {
+   int32_t *n;
+-  int32_t *v;
+   int32_t size;
+   int32_t i;
+ 
+   n    = GETVECTOR(x,n);
+-  v    = GETVECTOR(x,v);
+   size = x->size;
+ 
+   for (i=1; i < size; i++)
+@@ -611,7 +608,6 @@
+   int32_t i;                /* i and j, dummy counters */
+   int32_t j;
+   int32_t *n;					 /* the n vector of stack 'x' */
+-  int32_t size;				 /* its size */
+   int32_t reponse;			 /* number of pairs  */
+   int32_t lllength;			 /* number of occurence */
+   int32_t next;				 /* the next occurence in vector 'n' of stack 'x' */
+@@ -622,7 +618,6 @@
+ 	reponse = 0;
+ 
+ 	n    = GETVECTOR(x,n);      /* set n as the vector x->n */
+-	size = x->size;             /* set its size */
+ 
+ 	for (j=1; j < xmax; j++)    /* for all pos of the first sequence */
+ 		if (IS_MARKED(n,j))       /* check if it is marked */
+@@ -657,7 +652,6 @@
+   int32_t i;           /* i and j, dummy counters */
+   int32_t j;
+   int32_t *n;          /* the n vector of stack 'x' */
+-  int32_t size;        /* its size */
+   int32_t reponse;     /* number of pairs with at least one inverted occurence */
+   int32_t direct;      /* occurence in the direct sequence */
+   int32_t inverted;    /* ccurence in the inverted sequence */
+@@ -675,7 +669,6 @@
+   reponse = 0;
+ 
+   n    = GETVECTOR(x,n);                 /* set n as the vector n of stack 'x' */
+-  size = x->size;                        /* set its size */ 
+ 
+ 	for (j=1; j <= x->limits[0]; j++)     /* for all position of the first (direct) sequence */
+ 		if( IS_MARKED(n,j) )               /* if it is tagged (negative)  */
+@@ -715,7 +708,6 @@
+   int32_t i;
+   int32_t j;
+   int32_t *n;
+-  int32_t size;
+   int32_t reponse;
+   int32_t seqcount1;
+   int32_t seqcount2;
+@@ -739,7 +731,6 @@
+   reponse = 0;
+ 
+   n    = GETVECTOR(x,n);
+-  size = x->size;
+ 
+   if (seq1==0)
+     min1=0;
+Only in RepSeek-patched: KMRK.o
+diff -u -r RepSeek/KMRK_Seeds.c RepSeek-patched/KMRK_Seeds.c
+--- RepSeek/KMRK_Seeds.c	2014-09-09 12:34:39.000000000 +0200
++++ RepSeek-patched/KMRK_Seeds.c	2017-02-23 18:17:37.000000000 +0100
+@@ -545,7 +545,7 @@
+   ymin = stack->limits[seq2-1];
+   ymax = stack->limits[seq2];
+ 
+-  for (i=1; i <= xmax; i++)
++  for (i=1; i <= xmax; i++) {
+ 	  if (IS_MARKED(n,i))
+       {
+ 		  for(memj=i ;
+@@ -582,6 +582,7 @@
+ 				  }
+ 		  }
+       }
++}
+ 
+ 	  
+ 	  Seeds = KMRK_allocSeeds(Seeds,
+Only in RepSeek-patched: KMRK_Seeds.o
+diff -u -r RepSeek/KMRK_mask.c RepSeek-patched/KMRK_mask.c
+--- RepSeek/KMRK_mask.c	2014-09-09 12:34:39.000000000 +0200
++++ RepSeek-patched/KMRK_mask.c	2017-02-23 18:18:14.000000000 +0100
+@@ -236,12 +236,12 @@
+               if (sequence>1 || sequence<0)
+                 fprintf(stderr,"ERROR while reading mask file, line %d (see help)\n", linecount), exit(0);
+               
+-                if (sequence && complement)
++              if (sequence && complement)
+                     sequence++;
+                 
+-                push_area(table,sequence,begin,end);
++              push_area(table,sequence,begin,end);
+                 
+-                if (!sequence && complement)
++              if (!sequence && complement)
+                     push_area(table,1,complement -1 - end,complement -1 -begin);
+                 
+             }
+Only in RepSeek-patched: KMRK_mask.o
+Only in RepSeek-patched: KMRK_merge_seeds.o
+diff -u -r RepSeek/Makefile RepSeek-patched/Makefile
+--- RepSeek/Makefile	2014-09-09 12:34:39.000000000 +0200
++++ RepSeek-patched/Makefile	2017-02-24 07:57:42.000000000 +0100
+@@ -9,8 +9,7 @@
+ # MACHINE = SGI
+ # MACHINE = LINUX
+ # MACHINE = OSF
+-
+-MACHINE = MACOSX
++# MACHINE = MACOSX
+ 
+ 
+ # ???: MALLOC=-lmalloc
+@@ -39,7 +38,8 @@
+ #CFLAGS= -pg
+ #CFLAGS= -g
+ 
+-INSTALLDIR = $$HOME/bin
++prefix=/usr/local
++INSTALLDIR = $(prefix)/bin
+ 
+ ##### defined
+ 
+@@ -77,23 +77,19 @@
+ 
+ ## Rules
+ 
+-default:
+-	@echo "++ Repeats Search Engines ++"
+-	@echo "edit Makefile and set MACHINE, RANLIB, PROTO, CC, CFLAGS and eventually MALLOC"
+-	@echo " "
+-	@echo "To compile: make repseek"
+-	@echo "To clean:   make clean"
++default: repseek
+ 
+ 
+ %.o: %.c
+-	$(CC) $(CFLAGS) -D$(MACHINE) -c -o $@ $<;
++	$(CC) $(CFLAGS) -c -o $@ $<;
+ 
+ 
+ repseek:  $(OBJ) main_repseek.c
+-	$(CC) $(CFLAGS)  -D$(MACHINE) -o $@ $(OBJ) main_repseek.c $(LDFLAGS);
++	$(CC) $(CFLAGS)  -o $@ $(OBJ) main_repseek.c $(LDFLAGS);
+ 
+ 
+ install: repseek
++	mkdir -p $(INSTALLDIR)
+ 	cp  repseek $(INSTALLDIR)
+ 
+ 
+Only in RepSeek-patched: align_blast2like.o
+Only in RepSeek-patched: align_di.o
+diff -u -r RepSeek/align_matrix.c RepSeek-patched/align_matrix.c
+--- RepSeek/align_matrix.c	2014-09-09 12:34:39.000000000 +0200
++++ RepSeek-patched/align_matrix.c	2017-02-23 18:19:04.000000000 +0100
+@@ -71,25 +71,6 @@
+   return lseq;
+ }
+ 
+-/***
+-	From a float return the closest int
+-***/
+-static int float2int(float a){
+-
+-	if(a<0){
+-		if( ( a-(float)(int)a ) > -0.5 )
+-			return (int)a;
+-		else
+-			return ((int)a-1);
+-	}
+-	else{
+-		if( ( a-(float)(int)a ) < 0.5 )
+-			return (int)a;
+-		else
+-			return ((int)a+1);
+-	}
+-		
+-}
+ 
+ 
+ /*
+Only in RepSeek-patched: align_matrix.o
+Only in RepSeek-patched: align_seeds.o
+Only in RepSeek-patched: families.o
+diff -u -r RepSeek/families_2seqs.c RepSeek-patched/families_2seqs.c
+--- RepSeek/families_2seqs.c	2014-09-09 12:34:39.000000000 +0200
++++ RepSeek-patched/families_2seqs.c	2017-02-23 18:50:10.000000000 +0100
+@@ -75,10 +75,8 @@
+ 	
+ 	int32_t i;
+ 
+-	int32_t mainR=0;
+ 	int32_t max_mainR=0;
+ 	float meanR=0, meanR2=0;
+-	float fraction_mainR=0.0;
+ 
+ 
+ 	for(pRep = AllReps; pRep < AllReps+nReps; pRep++){         /* determine the mean repeat level of each repeat */
+@@ -102,13 +100,10 @@
+ 						
+ 			if( HistoR[i] > max_mainR ){
+ 				max_mainR=HistoR[i];
+-				mainR=i;
+ 			}
+ 						
+ 		}
+ 
+-		fraction_mainR = (float)max_mainR / ( (float)(pRep->len1) + (pRep->len2) );
+-
+ 
+ 		pRep->meanR= meanR+meanR2 -2;
+ 		pRep->mainR=0;
+Only in RepSeek-patched: families_2seqs.o
+Only in RepSeek-patched: filter.o
+Only in RepSeek-patched: filter2seq.o
+Only in RepSeek-patched: help.o
+Only in RepSeek-patched: lmin.o
+diff -u -r RepSeek/main_repseek.c RepSeek-patched/main_repseek.c
+--- RepSeek/main_repseek.c	2014-09-09 12:34:39.000000000 +0200
++++ RepSeek-patched/main_repseek.c	2017-02-23 18:11:18.000000000 +0100
+@@ -40,9 +40,7 @@
+ #include <stdlib.h>
+ #include <math.h>
+ 
+-#if defined(MACOSX) || defined(LINUX) || defined(OSF)  /* for options */
+ #include <unistd.h>
+-#endif
+ 
+ #include "repseek_types.h"
+ 
+Only in RepSeek-patched: memory.o
+Only in RepSeek-patched: memory_align.o
+Only in RepSeek-patched: output.o
+Only in RepSeek-patched: read_seeds.o
+Only in RepSeek-patched: readfst.o
+Only in RepSeek-patched: repseek
+diff -u -r RepSeek/repseek_types.h RepSeek-patched/repseek_types.h
+--- RepSeek/repseek_types.h	2014-09-09 12:34:39.000000000 +0200
++++ RepSeek-patched/repseek_types.h	2017-02-23 18:12:37.000000000 +0100
+@@ -70,14 +70,7 @@
+  ********** **********/
+ 
+ #include <stdio.h>     /* The type FILE * is defined here */
+-
+-#ifdef OSF
+-typedef signed char          int8_t;
+-typedef short                int16_t; 
+-typedef long                 int32_t;
+-#else
+ #include <stdint.h>           /* all, the int??_t are defined in there for typical unix */
+-#endif
+ 
+ /**
+  * Store informations about one STRICT repeat (seeds)
+Only in RepSeek-patched: sequence.o
+Only in RepSeek-patched: smin.o
+Only in RepSeek-patched: sort.o

@@ -17220,6 +17220,8 @@ with pkgs;
 
   plink-ng = callPackage ../applications/science/biology/plink-ng/default.nix { };
 
+  repseek = callPackage ../applications/science/biology/repseek { };
+
   samtools = callPackage ../applications/science/biology/samtools/default.nix { };
 
   snpeff = callPackage ../applications/science/biology/snpeff/default.nix { };
